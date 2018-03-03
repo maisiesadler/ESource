@@ -1,0 +1,11 @@
+C:\Users\maisiesadler\source\repos\ESource\ESource\bin\Debug\netcoreapp2.0\ESource.deps.json
+C:\Users\maisiesadler\source\repos\ESource\ESource\bin\Debug\netcoreapp2.0\ESource.runtimeconfig.json
+C:\Users\maisiesadler\source\repos\ESource\ESource\bin\Debug\netcoreapp2.0\ESource.runtimeconfig.dev.json
+C:\Users\maisiesadler\source\repos\ESource\ESource\bin\Debug\netcoreapp2.0\ESource.dll
+C:\Users\maisiesadler\source\repos\ESource\ESource\bin\Debug\netcoreapp2.0\ESource.pdb
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.csprojResolveAssemblyReference.cache
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.csproj.CoreCompileInputs.cache
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.AssemblyInfoInputs.cache
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.AssemblyInfo.cs
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.dll
+C:\Users\maisiesadler\source\repos\ESource\ESource\obj\Debug\netcoreapp2.0\ESource.pdb
