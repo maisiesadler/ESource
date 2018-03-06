@@ -1,6 +1,5 @@
 ﻿using ESource.AppointmentBook.Events;
 using ESource.Base;
-using ESource.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
