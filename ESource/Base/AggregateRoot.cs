@@ -8,7 +8,7 @@ namespace ESource.Base
         private List<Event> _uncommittedEvents = new List<Event>();
 
         public Guid Id { get; protected set; }
-        public int Version { get; internal set; }
+        public int Version { get; protected set; }
 
         public IEnumerable<Event> GetUncommittedChanges()
         {

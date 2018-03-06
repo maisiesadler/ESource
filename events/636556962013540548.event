@@ -1,5 +1,0 @@
-{
-  "$type": "ESource.Events.AppointmentActivatedEvent, ESource",
-  "AggregateId": "611d2837-142e-4686-b72a-1cc53f48dedb",
-  "Version": 3
-}

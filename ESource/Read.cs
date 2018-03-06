@@ -13,6 +13,7 @@ namespace ESource
         {
             eventStream.Subscribe(@event =>
             {
+                WriteToConsole(@event);
                 switch (@event)
                 {
                     case AppointmentAddedEvent e:
@@ -23,6 +24,11 @@ namespace ESource
                         break;
                 }
             });
+        }
+
+        private void WriteToConsole(Event @event)
+        {
+            Console.WriteLine("1-" + @event.GetType().ToString() + "-" + JsonConvert.SerializeObject(@event));
         }
 
         private List<Appointment> _appointments = new List<Appointment>();
