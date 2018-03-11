@@ -1,14 +1,15 @@
 ﻿using ESource.Base;
+using System;
 
 namespace ESource.AppointmentBook.Commands
 {
     public class CreateCalendarDayCommand : Command
     {
-        public CreateCalendarDayCommand(Day day)
+        public CreateCalendarDayCommand(DayOfWeek day)
         {
             Day = day;
         }
 
-        public Day Day { get; }
+        public DayOfWeek Day { get; }
     }
 }

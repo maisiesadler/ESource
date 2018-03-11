@@ -33,7 +33,7 @@ namespace ESource.AppointmentBook
             _slots[@event.Timeslot] = true;
         }
 
-        public void Initialise(Guid id, Day day)
+        public void Initialise(Guid id, DayOfWeek day)
         {
             Publish(new CalendarDayAddedEvent(id, day));
         }
