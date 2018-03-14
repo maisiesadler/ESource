@@ -63,16 +63,28 @@ namespace ESource.WebSockets
                 var command = commandName.ToString();
                 switch (command)
                 {
+                    case "CreateCalendarDayCommand":
+                        if (request.TryGetValue("data", out var data1))
+                        {
+                            var jData = data1 as JObject;
+                            if (jData.TryGetValue("day", out var day))
+                            {
+                                var dayInt = int.Parse(day.ToString());
+                                DayOfWeek dayOfWeek = (DayOfWeek)dayInt;
+                                var cmd = new CreateCalendarDayCommand(dayOfWeek);
+                                Send(cmd);
+                            }
+                        }
+                        break;
                     case "RequestAppointmentCommand":
                         if (request.TryGetValue("data", out var data))
                         {
                             var jData = data as JObject;
-                            jData.TryGetValue("day", out var day1);
-                            if (jData.TryGetValue("day", out var day)
+                            if (jData.TryGetValue("dayId", out var dayId)
                                 && jData.TryGetValue("timeslot", out var timeslot)
                                 && jData.TryGetValue("appointmentName", out var appointmentName))
                             {
-                                Guid id = new Guid(day.ToString());
+                                Guid id = new Guid(dayId.ToString());
                                 int timeslotInt = int.Parse(timeslot.ToString());
                                 string appt = appointmentName.ToString();
                                 var cmd = new RequestAppointmentCommand(id, timeslotInt, appt);

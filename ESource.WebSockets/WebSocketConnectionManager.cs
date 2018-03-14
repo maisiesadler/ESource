@@ -14,10 +14,12 @@ namespace ESource.WebSockets
     {
         CancellationToken _token = new CancellationTokenSource().Token;
         private Backend _backend;
+        private ILogger _logger;
 
-        public WebSocketConnectionManager()
+        public WebSocketConnectionManager(ILogger logger)
         {
             _backend = new Backend();
+            _logger = logger;
         }
         public async Task HandleRequest(HttpContext httpContext, Func<Task> next)
         {
@@ -29,31 +31,78 @@ namespace ESource.WebSockets
                 if (isRequestingModel)
                 {
                     var tcs = new TaskCompletionSource<object>();
-                    ReadSocket(webSocket, tcs);
+                    var cancellationTokenSource = new CancellationTokenSource();
 
-                    var subject = _backend.Read();
-                    var subscription = subject.Subscribe(async s =>
-                    {
-                        var bytes = Encoding.UTF8.GetBytes(s);
-                        await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, _token);
-                    }, () => { tcs.SetResult(new object()); });
+                    var obs = _backend.Read();
+
+                    var a = 1;
+                    var subscription = obs.Subscribe(s =>
+                     {
+                         if (a++ == 4)
+                             tcs.SetResult(new object());
+                         var bytes = Encoding.UTF8.GetBytes(s);
+                         webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, _token);
+                     }, () =>
+                     {
+                         var bytes = Encoding.UTF8.GetBytes("Completed");
+                         webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, _token);
+                         tcs.SetResult(new object());
+                     });
+
+                    ReadSocketWithRetry(webSocket, tcs, cancellationTokenSource, subscription);
 
                     await tcs.Task;
-                    subscription.Dispose();
+                    subscription?.Dispose();
+                    cancellationTokenSource.Cancel();
                 }
             }
         }
 
-        private async Task ReadSocket(WebSocket webSocket, TaskCompletionSource<object> taskCompletionSource)
+        private async Task ReadSocketWithRetry(
+            WebSocket webSocket,
+            TaskCompletionSource<object> taskCompletionSource,
+            CancellationTokenSource cancellationTokenSource,
+            IDisposable subscription)
+        {
+            bool connected = true;
+
+            while (connected && !cancellationTokenSource.IsCancellationRequested)
+            {
+                try
+                {
+                    (WebSocketMessageType, JObject) result = await ReadSocket(webSocket, taskCompletionSource, cancellationTokenSource);
+                    var messageType = result.Item1;
+                    if (messageType == WebSocketMessageType.Text)
+                    {
+                        var jObject = result.Item2;
+                        _backend.Process(jObject);
+                    }
+                    else if (messageType == WebSocketMessageType.Close)
+                    {
+                        connected = false;
+                        subscription.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogException("Error thrown while reading socket", ex);
+                }
+            }
+        }
+        private async Task<(WebSocketMessageType, JObject)> ReadSocket(
+            WebSocket webSocket, 
+            TaskCompletionSource<object> taskCompletionSource,
+            CancellationTokenSource cancellationTokenSource)
         {
             var buffer = WebSocket.CreateClientBuffer(4096, 4096);
             WebSocketReceiveResult result = null;
+            JObject jObject = null;
 
             using (var ms = new MemoryStream())
             {
                 do
                 {
-                    result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
+                    result = await webSocket.ReceiveAsync(buffer, cancellationTokenSource.Token);
                     ms.Write(buffer.Array, buffer.Offset, result.Count);
                 }
                 while (!result.EndOfMessage);
@@ -64,16 +113,16 @@ namespace ESource.WebSockets
                 {
                     using (var reader = new StreamReader(ms, Encoding.UTF8))
                     {
-                        // do stuff
                         var msg = reader.ReadToEnd();
-                        JObject jObject = JsonConvert.DeserializeObject<JObject>(msg);
-                        _backend.Process(jObject);
+                        jObject = JsonConvert.DeserializeObject<JObject>(msg);
                     }
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {
                     taskCompletionSource.SetResult(new object());
                 }
+
+                return (result.MessageType, jObject);
             }
         }
     }

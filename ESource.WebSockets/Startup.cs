@@ -41,7 +41,8 @@ namespace ESource.WebSockets
             app.UseMvc();
             app.UseWebSockets();
 
-            var manager = new WebSocketConnectionManager();
+            var fileLogger = new FileLogger();
+            var manager = new WebSocketConnectionManager(fileLogger);
 
             app.Use(manager.HandleRequest);
 
